@@ -1,6 +1,9 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    <h1>Response:</h1>
+    <div v-for="item in status">
+      <p>{{ item }}</p>
+    </div>
   </div>
 </template>
 
@@ -13,3 +16,26 @@
   }
 }
 </style>
+
+<script>
+import testSrv from '@/services/test'
+
+export default {
+  data() {
+    return {
+      status: [],
+    }
+  },
+
+  methods: {
+    async init() {
+      this.status = await testSrv.testApi()
+      console.log(status)
+    },
+  },
+
+  created() {
+    this.init()
+  },
+}
+</script>
