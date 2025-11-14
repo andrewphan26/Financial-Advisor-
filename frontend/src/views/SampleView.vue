@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="main-container">
     <div class="test">
       <h1>Testing backend - Res received:</h1>
       <div v-for="item in status">
