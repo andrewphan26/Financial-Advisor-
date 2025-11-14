@@ -11,6 +11,9 @@ form .actions {
 form .actions > * {
   display: block;
 }
+.errors-feedback {
+  color: #f55a5a;
+}
 
 /* Buttons */
 .btn {

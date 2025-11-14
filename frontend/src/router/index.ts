@@ -22,6 +22,8 @@ const router = createRouter({
       name: 'sample',
       component: () => import('../views/SampleView.vue'),
     },
+
+    // Auth
     {
       path: '/customer-register',
       name: 'register',
@@ -32,7 +34,25 @@ const router = createRouter({
       name: 'login',
       component: () => import('../views/Customer/Login.vue'),
     },
+
+    // Customer
+    {
+      path: '/customer/dashboard',
+      name: 'customer-dashboard',
+      component: () => import('../views/Customer/Dashboard.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+
+  if (to.meta.requiresAuth && !token) {
+    return next({ name: 'login' })
+  }
+
+  next()
 })
 
 export default router

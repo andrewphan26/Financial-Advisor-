@@ -5,7 +5,11 @@
 
       <div class="name">Loan System</div>
     </div>
-    <slot name="user-opts"></slot>
+    <div class="user-opts">
+      <slot name="user-opts">
+        <v-btn class="sign-out btn" v-if="isLoggedIn" @click="logout">Sign out</v-btn>
+      </slot>
+    </div>
   </div>
 </template>
 
@@ -17,7 +21,7 @@
   width: 100%;
   margin-bottom: 48px;
 
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
 .logo {
@@ -35,13 +39,36 @@
   height: 45px;
   margin-right: 18px;
 }
+
+.user-opts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin-right: 36px;
+}
 </style>
 
 <script>
+import { useAuthStore } from '@/stores/auth'
 import ToolingIcon from './icons/IconTooling.vue'
 export default {
   components: {
     ToolingIcon,
+  },
+  computed: {
+    auth() {
+      return useAuthStore()
+    },
+    isLoggedIn() {
+      return this.auth.isLoggedIn
+    },
+  },
+  methods: {
+    logout() {
+      this.auth.logout()
+    },
   },
 }
 </script>
