@@ -1,4 +1,5 @@
 import db from "../db/mysqlConn.js";
-import { verifyToken } from "../middleware/auth.js";
+import express from "express";
+const router = express.Router();
 
-app.get("/customers/<id>", (req, res) => {});
+export default router;

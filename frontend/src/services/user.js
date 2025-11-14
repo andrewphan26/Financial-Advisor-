@@ -24,7 +24,19 @@ function login(data) {
   })
 }
 
+function getUserInfo(userID) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      path: `/user/${userID}`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
 export default {
   register,
   login,
+
+  getUserInfo,
 }

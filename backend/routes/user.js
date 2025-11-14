@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { verifyToken } from "../middleware/auth.js";
 const router = express.Router();
 import db from "../db/mysqlConn.js";
 
@@ -36,7 +37,6 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    // 4️⃣ Respond with token & user info
     res.json({
       token,
       user: {
@@ -122,6 +122,31 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ message: "User registered", user: newUser, token });
   } catch (err) {
     console.error("Register error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/:id", verifyToken, async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // Get User from DB
+    const [rows] = await db.query("SELECT * FROM User WHERE id = ?", [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const user = rows[0];
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      type: user.type,
+      role: user.role,
+      firstName: user.first_name,
+      lastName: user.last_name,
+    });
+  } catch (error) {
+    console.error("Fetch user error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
