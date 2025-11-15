@@ -1,5 +1,5 @@
 <template>
-  <div class="container customer-login">
+  <div class="container login">
     <v-form class="form">
       <v-text-field
         v-model="email"
@@ -27,21 +27,21 @@
 
       <!-- Actions -->
       <div class="actions center">
-        <v-btn class="submit btn" @click="onSubmit"> submit </v-btn>
+        <v-btn class="submit btn" @click="onSubmit"> Login </v-btn>
       </div>
     </v-form>
     <div class="register-nav flex center">
-      <RouterLink to="/" class="link-btn mt-3">Register</RouterLink>
+      <RouterLink to="/customer-register" class="link-btn mt-3">Register</RouterLink>
     </div>
   </div>
 </template>
 
 <style>
-.customer-login {
+.login {
   align-self: center;
   margin: auto;
   transform: translateY(-50px);
-  padding: 64px 150px;
+  padding: 64px 100px;
 }
 
 .form > .v-input {
@@ -88,7 +88,6 @@ export default {
 
         // If login token received, save it in auth store
         if (res.token) {
-          console.log(res)
           const auth = useAuthStore()
           auth.setToken(res)
 

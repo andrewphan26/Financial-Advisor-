@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useRegister } from '@/stores/register'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,10 +28,10 @@ const router = createRouter({
     {
       path: '/customer-register',
       name: 'register',
-      component: () => import('../views/Customer/Register.vue'),
+      component: () => import('../views/Customer/Register/Register.vue'),
     },
     {
-      path: '/customer-login',
+      path: '/login',
       name: 'login',
       component: () => import('../views/Customer/Login.vue'),
     },
@@ -42,15 +43,41 @@ const router = createRouter({
       component: () => import('../views/Customer/Dashboard.vue'),
       meta: { requiresAuth: true },
     },
+
+    // Catch-all for unknown routes
+    {
+      path: '/:catchAll(.*)',
+      redirect: '/login',
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
+  const registerStore = useRegister()
   const token = localStorage.getItem('token')
+  const isLoggedIn = !!token
 
+  // If already logged in, redirect to dashboard
+  const publicPages = ['home', 'login', 'register']
+  if (isLoggedIn && publicPages.includes(to.name)) {
+    return next({ name: 'customer-dashboard' })
+  }
+
+  // Protect routes that need auth
   if (to.meta.requiresAuth && !token) {
     return next({ name: 'login' })
   }
+
+  // Warn user if leaving page on registration process
+  // const isLeavingRegister = from.name === 'register'
+  // if (
+  //   isLeavingRegister &&
+  //   (registerStore.hasLoanInProcess || registerStore.registrationInProcess)
+  // ) {
+  //   if (!confirm('Leave this page? Your progress will reset.')) {
+  //     return next(false)
+  //   }
+  // }
 
   next()
 })

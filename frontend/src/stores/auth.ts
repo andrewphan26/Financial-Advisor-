@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
 
-    router.push('/customer-login')
+    router.push('/login')
   }
 
   const isLoggedIn = computed(() => !!token.value)

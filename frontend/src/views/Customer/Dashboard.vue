@@ -28,7 +28,7 @@ export default {
 
   methods: {
     async init() {
-      this.res = await userSrv.getUserInfo(this.auth.user.id)
+      this.res = await userSrv.getPersonalInfo()
       console.log(this.res)
     },
   },

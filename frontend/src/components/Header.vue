@@ -1,6 +1,6 @@
 <template>
   <div class="header flex">
-    <div class="logo flex">
+    <div class="logo flex" @click="toHome">
       <ToolingIcon class="icon" />
 
       <div class="name">Loan System</div>
@@ -31,6 +31,7 @@
   font-weight: bold;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 }
 
 .logo .icon {
@@ -66,6 +67,9 @@ export default {
     },
   },
   methods: {
+    toHome() {
+      this.$router.push('/')
+    },
     logout() {
       this.auth.logout()
     },

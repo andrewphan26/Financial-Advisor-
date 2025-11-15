@@ -18,9 +18,24 @@ form .actions > * {
 /* Buttons */
 .btn {
 }
+.btn.common {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+}
 .btn.submit {
   --v-btn-height: 0;
   padding: 12px 68px;
+}
+.btn.accept {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+  border: rgb(143, 143, 143) 1px solid;
+}
+.btn.deny {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+  background-color: #f55a5a;
+  color: white;
 }
 
 .link-btn {
@@ -60,4 +75,14 @@ form .actions > * {
 *.center {
   align-items: center;
   justify-content: center;
+}
+*.sb {
+  justify-content: space-between;
+}
+*.se {
+  justify-content: space-evenly;
+}
+
+.full-w {
+  width: 100%;
 }

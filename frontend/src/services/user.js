@@ -12,6 +12,30 @@ function register(data) {
   })
 }
 
+function registerCustomer(data) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      data,
+      method: 'POST',
+      path: `/user/customer-register/`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
+function registerNApplyLoan(data) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      data,
+      method: 'POST',
+      path: `/user/customer-loan-n-register/`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
 function login(data) {
   return new Promise((resolve, reject) => {
     requestSrv({
@@ -34,9 +58,23 @@ function getUserInfo(userID) {
   })
 }
 
+function getPersonalInfo() {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      path: `/user/personal-info/`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
 export default {
   register,
+  registerCustomer,
+  registerNApplyLoan,
+
   login,
 
+  getPersonalInfo,
   getUserInfo,
 }
