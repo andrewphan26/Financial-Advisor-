@@ -1,5 +1,5 @@
 <template>
-  <div class="container customer-login">
+  <div class="container login">
     <v-form class="form">
       <v-text-field
         v-model="email"
@@ -20,22 +20,28 @@
         @click:append-inner="passwordVisible = !passwordVisible"
       ></v-text-field>
 
-      <div class="actions center">
-        <v-btn class="submit btn" @click="onSubmit"> submit </v-btn>
+      <!-- Error feedback -->
+      <div class="errors-feedback">
+        <div class="error-message" v-if="errorFeedback">{{ errorFeedback }}</div>
       </div>
-      <div class="register-nav flex center">
-        <RouterLink to="/" class="link-btn mt-3">Register</RouterLink>
+
+      <!-- Actions -->
+      <div class="actions center">
+        <v-btn class="submit btn" @click="onSubmit"> Login </v-btn>
       </div>
     </v-form>
+    <div class="register-nav flex center">
+      <RouterLink to="/customer-register" class="link-btn mt-3">Register</RouterLink>
+    </div>
   </div>
 </template>
 
 <style>
-.customer-login {
+.login {
   align-self: center;
   margin: auto;
   transform: translateY(-50px);
-  padding: 64px 150px;
+  padding: 64px 100px;
 }
 
 .form > .v-input {
@@ -44,6 +50,7 @@
 </style>
 
 <script>
+import { useAuthStore } from '@/stores/auth'
 import { useVuelidate } from '@vuelidate/core'
 import { email, required } from '@vuelidate/validators'
 
@@ -59,6 +66,9 @@ export default {
       // Form
       email: '',
       password: '',
+
+      // Errors
+      errorFeedback: null,
     }
   },
 
@@ -72,28 +82,31 @@ export default {
   setup: () => ({ v$: useVuelidate() }),
 
   methods: {
-    async init() {
-      // this.res = await userSrv.register({
-      //   email: 'testUser2@sal.com',
-      //   password: '123456',
-      //   type: 'customer',
-      //   firstName: 'Ricardo',
-      //   lastName: 'Sanchez',
-      // })
-      // console.log(res)
+    async login() {
+      try {
+        const res = await userSrv.login({ email: this.email, password: this.password })
+
+        // If login token received, save it in auth store
+        if (res.token) {
+          const auth = useAuthStore()
+          auth.setToken(res)
+
+          // Redirect to customer dashboard
+          this.$router.push('/customer/dashboard')
+        }
+      } catch (error) {
+        this.errorFeedback = error.message
+      }
     },
     async onSubmit(vals) {
+      this.errorFeedback = null
       const valid = await this.v$.$validate()
       if (valid) {
-        console.log('Submitting info: ', this.email, this, this.password)
-      } else {
-        console.log('invalid yo', valid)
+        this.login()
       }
     },
   },
 
-  created() {
-    this.init()
-  },
+  created() {},
 }
 </script>

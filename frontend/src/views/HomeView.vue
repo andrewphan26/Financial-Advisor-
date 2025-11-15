@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+import LoanForm from '@/components/LoanForm.vue'
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <LoanForm :homepage="true" submitBtnText="Apply & Create account" />
 </template>

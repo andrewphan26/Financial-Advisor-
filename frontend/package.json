@@ -22,9 +22,11 @@
   "dependencies": {
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
+    "@vueuse/core": "^14.0.0",
     "axios": "^1.13.1",
     "pinia": "^3.0.3",
     "vue": "^3.5.22",
+    "vue-currency-input": "^3.2.1",
     "vue-router": "^4.6.3",
     "vuetify": "^3.10.11"
   },
