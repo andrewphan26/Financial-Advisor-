@@ -69,10 +69,17 @@ async function createEmploymentInfo(db, userId, employmentInfo) {
 
 // Loan helpers
 function calculateInterest(amount, term, frequency) {
-  const baseRate = 0.05;
+  // base annual rate (APR)
+  const baseAPR = 0.1;
+
   const multiplier =
-    frequency === "weekly" ? 1.0 : frequency === "biweekly" ? 1.1 : 1.2;
-  return Number((amount * baseRate * multiplier * (term / 12)).toFixed(2));
+    frequency === "weekly" ? 1.0 : frequency === "biweekly" ? 1.05 : 1.1;
+  const termAdjustment = term * 0.005;
+  const finalAPR = baseAPR * multiplier + termAdjustment;
+  const interest = amount * finalAPR * (term / 12);
+  const percentage = (interest / amount) * 100;
+
+  return Number(percentage.toFixed(2));
 }
 
 async function assignAnalyst(db) {
@@ -348,4 +355,26 @@ router.get("/personal-info", verifyToken, async (req, res) => {
   }
 });
 
+// Apply new loan
+router.post("/apply-loan", verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { amount, frequency, term } = req.body;
+
+  try {
+    if (!amount || !frequency || !term)
+      return res.status(400).json({
+        message: "Missing required loan fields (amount, frequency, term)",
+      });
+
+    await createLoan(db, userId, { amount, frequency, term });
+
+    res.status(201).json({
+      message:
+        "Your loan request has been submitted and will be reviewed by our analysts.",
+    });
+  } catch (error) {
+    console.error("Apply loan error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 export default router;

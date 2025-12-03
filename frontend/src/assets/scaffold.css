@@ -86,3 +86,82 @@ form .actions > * {
 .full-w {
   width: 100%;
 }
+
+table.jeffrey {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.jeffrey th {
+  text-align: left;
+  padding: 10px;
+  color: #bfbfbf;
+  font-size: 14px;
+  border-bottom: 1px solid #333;
+}
+
+table.jeffrey td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 15px;
+}
+
+table.jeffrey .status {
+  font-weight: 600;
+}
+.status-pending {
+  color: #dabc5c;
+}
+.status-approved {
+  color: #4ade80; /* green for active */
+}
+
+.status-rejected,
+.status-cancelled {
+  color: #de4a4a;
+}
+
+.badge.pending {
+  background-color: #dabc5c;
+}
+.badge.approved {
+  background-color: #4ade80;
+}
+.badge.rejected,
+.badge.cancelled {
+  background-color: #de4a4a;
+}
+
+.dashboard-item {
+  min-width: 1000px;
+  background: #222; /* dark card */
+  border-radius: 8px;
+  padding: 32px 30px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  color: #f5f5f5;
+  box-sizing: border-box;
+}
+
+.primary-btn {
+  padding: 12px 36px;
+  border-radius: 4px;
+  border: none;
+  background: #ffffff;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid white;
+}
+
+.title-row h2 {
+  font-weight: bold;
+}

@@ -5,7 +5,27 @@ function applyLoan(data) {
     requestSrv({
       data,
       method: 'POST',
-      path: `/customer/loans/apply`,
+      path: `/user/apply-loan`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
+function getCustomerLoans() {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      path: `/loan/customer/history`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
+function getLoanInfo(loanId) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      path: `/loan/customer/${loanId}`,
     })
       .then((res) => resolve(res.data))
       .catch((error) => reject(error.response.data))
@@ -14,4 +34,6 @@ function applyLoan(data) {
 
 export default {
   applyLoan,
+  getCustomerLoans,
+  getLoanInfo,
 }

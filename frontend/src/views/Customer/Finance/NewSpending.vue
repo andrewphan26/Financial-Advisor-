@@ -15,19 +15,10 @@
           />
         </v-col>
         <v-col cols="12" md="6">
-          <v-text-field
-            v-model="formData.category"
-            label="Category"
-            required
-            density="compact"
-          />
+          <v-text-field v-model="formData.category" label="Category" required density="compact" />
         </v-col>
         <v-col cols="12" md="6">
-          <v-text-field
-            v-model="formData.sub_category"
-            label="Sub Category"
-            density="compact"
-          />
+          <v-text-field v-model="formData.sub_category" label="Sub Category" density="compact" />
         </v-col>
         <v-col cols="12" md="6">
           <v-text-field
@@ -76,12 +67,12 @@ export default {
 
     const loadSpending = async () => {
       if (!isEdit.value) return
-      
+
       try {
         console.log('Loading spending with id:', spendingId.value)
         const spending = await spendingSrv.getSpendings()
-        const item = spending.find(s => s.id === parseInt(spendingId.value))
-        
+        const item = spending.find((s) => s.id === parseInt(spendingId.value))
+
         if (item) {
           formData.value = {
             date: item.date,
@@ -91,7 +82,7 @@ export default {
           }
         } else {
           alert('Spending not found')
-          router.push({ name: 'customer-spendings' })
+          router.push({ name: 'finance' })
         }
       } catch (e) {
         console.error('Failed to load spending:', e)
@@ -130,13 +121,13 @@ export default {
           })
           console.log('Spending created successfully:', result)
         }
-        
-        router.push({ name: 'customer-spendings' })
+
+        router.push({ name: 'finance' })
       } catch (e) {
         console.error('Failed to save spending - Full error:', e)
         console.error('Error response:', e.response?.data)
         console.error('Error status:', e.response?.status)
-        
+
         let errorMsg = 'Failed to save spending. '
         if (e.response?.status === 401) {
           errorMsg += 'You are not logged in.'
@@ -147,12 +138,12 @@ export default {
         } else {
           errorMsg += 'Server error: ' + (e.response?.data?.message || e.message)
         }
-        
+
         alert(errorMsg)
       }
     }
 
-    const goBack = () => router.push({ name: 'customer-spendings' })
+    const goBack = () => router.push({ name: 'finance' })
 
     const onDelete = async () => {
       if (!confirm('Are you sure you want to delete this spending?')) {
@@ -163,12 +154,12 @@ export default {
         console.log('Deleting spending with id:', spendingId.value)
         await spendingSrv.deleteSpending(spendingId.value)
         console.log('Spending deleted successfully')
-        router.push({ name: 'customer-spendings' })
+        router.push({ name: 'finance' })
       } catch (e) {
         console.error('Failed to delete spending - Full error:', e)
         console.error('Error response:', e.response?.data)
         console.error('Error status:', e.response?.status)
-        
+
         let errorMsg = 'Failed to delete spending. '
         if (e.response?.status === 401) {
           errorMsg += 'You are not logged in.'
@@ -179,7 +170,7 @@ export default {
         } else {
           errorMsg += 'Server error: ' + (e.response?.data?.message || e.message)
         }
-        
+
         alert(errorMsg)
       }
     }
@@ -197,7 +188,8 @@ export default {
   color: #fff;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px -2px;
 }
 .new-spending h2 {
