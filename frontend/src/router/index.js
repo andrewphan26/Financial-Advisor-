@@ -44,12 +44,12 @@ const router = createRouter({
       component: () => import('../views/Customer/Dashboard.vue'),
       meta: { requiresAuth: true },
     },
-    {
-      path: '/customer/spendings',
-      name: 'customer-spendings',
-      component: () => import('../views/Customer/Finance/Spendings.vue'),
-      meta: { requiresAuth: true },
-    },
+    // {
+    //   path: '/customer/spendings',
+    //   name: 'customer-spendings',
+    //   component: () => import('../views/Customer/Finance/Spendings.vue'),
+    //   meta: { requiresAuth: true },
+    // },
     {
       path: '/customer/spendings/new',
       name: 'customer-spendings-new',
