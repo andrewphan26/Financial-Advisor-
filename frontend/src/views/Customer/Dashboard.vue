@@ -1,45 +1,55 @@
 <template>
-  <div class="main-container customer-dashboard">
+  <div class="customer-dashboard">
     <div class="d-flex flex-row tabs-container">
       <v-tabs v-model="tab" direction="vertical">
-        <v-tab prepend-icon="mdi-offer" text="My Loans" value="option-1"></v-tab>
-        <v-tab prepend-icon="mdi-account" text="Personal Information" value="option-2"></v-tab>
+        <v-tab
+          prepend-icon="mdi-offer"
+          text="My Loans"
+          @click="goToTab('my-loans')"
+          :value="'my-loans'"
+        />
+        <v-tab
+          prepend-icon="mdi-account"
+          text="Personal Information"
+          @click="goToTab('personal-info')"
+          :value="'personal-info'"
+        />
         <v-tab
           prepend-icon="mdi-office-building"
           text="Employment Information"
-          value="option-3"
-        ></v-tab>
-        <v-tab prepend-icon="mdi-finance" text="Finance" value="option-4"></v-tab>
-        <v-tab prepend-icon="mdi-bell" text="Notification" value="option-5"></v-tab>
+          @click="goToTab('employment-info')"
+          :value="'employment-info'"
+        />
+        <v-tab
+          prepend-icon="mdi-finance"
+          text="Finance"
+          @click="goToTab('finance')"
+          :value="'finance'"
+        />
+        <v-tab
+          prepend-icon="mdi-bell"
+          text="Notification"
+          @click="goToTab('notifications')"
+          :value="'notifications'"
+        />
       </v-tabs>
 
-      <v-tabs-window v-model="tab">
-        <v-tabs-window-item value="option-1"> hello </v-tabs-window-item>
-
-        <v-tabs-window-item value="option-2">
-          <v-card flat> </v-card>
-        </v-tabs-window-item>
-
-        <v-tabs-window-item value="option-3">
-          <v-card flat> </v-card>
-        </v-tabs-window-item>
-        <v-tabs-window-item value="option-4">
-          <Spendings />
-        </v-tabs-window-item>
-      </v-tabs-window>
+      <div class="tab-content">
+        <router-view />
+      </div>
     </div>
   </div>
 </template>
 
 <style>
 .customer-dashboard {
-  min-width: 1400px;
+  min-width: 1420px;
 }
 .tabs-container {
   width: 100%;
 }
 .v-slide-group {
-  border-right: 1px solid white;
+  /* border-right: 1px solid white; */
   margin-right: 36px;
 }
 .v-window-item {
@@ -48,49 +58,27 @@
 </style>
 
 <script>
-import { useAuthStore } from '@/stores/auth'
-import userSrv from '@/services/user'
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import Spendings from '@/views/Customer/Finance/Spendings.vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 export default {
-  data() {
-    return {
-      res: null,
-    }
-  },
-
-  components: {
-    Spendings,
-  },
-  computed: {
-    auth() {
-      return useAuthStore()
-    },
-  },
   setup() {
     const route = useRoute()
-    const tab = ref(route.query.tab || 'option-1')
+    const router = useRouter()
+    const tab = ref(route.name)
 
-    onMounted(() => {
-      if (route.query.tab) {
-        tab.value = route.query.tab
-      }
-    })
+    watch(
+      () => route.name,
+      (newName) => {
+        tab.value = newName
+      },
+    )
 
-    return { tab }
-  },
+    const goToTab = (tabName) => {
+      router.push({ name: tabName })
+    }
 
-  methods: {
-    async init() {
-      this.res = await userSrv.getPersonalInfo()
-      console.log(this.res)
-    },
-  },
-
-  created() {
-    this.init()
+    return { tab, goToTab }
   },
 }
 </script>

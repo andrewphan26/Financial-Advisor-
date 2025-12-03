@@ -1,26 +1,17 @@
 <template>
   <div class="dashboard-wrapper">
-
     <!-- TOP BAR -->
     <div class="top-bar">
       <h1 class="page-title">Analyst Dashboard</h1>
       <div class="top-buttons">
-  <button class="btn" @click="goToSettings">Settings</button>
-  <button 
-    v-if="isAdmin"
-    class="btn"
-    @click="goToAdminDashboard"
-  >
-    Admin Dashboard
-  </button>
+        <button class="btn" @click="goToSettings">Settings</button>
+        <button v-if="isAdmin" class="btn" @click="goToAdminDashboard">Admin Dashboard</button>
 
-  <button class="btn" @click="logout">Sign Out</button>
-</div>
-
+        <button class="btn" @click="logout">Sign Out</button>
+      </div>
     </div>
 
     <div class="dashboard-layout">
-
       <!-- LEFT SIDEBAR -->
       <div class="sidebar">
         <img class="profile-img" :src="avatar" />
@@ -43,7 +34,7 @@
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Status</th>
-                <th> Actions </th>
+                <th>Actions</th>
               </tr>
             </thead>
 
@@ -54,38 +45,34 @@
                 <td>{{ loan.interest }}%</td>
                 <td>{{ loan.start }}</td>
                 <td>{{ loan.end }}</td>
-                <td class="status">{{ loan.status }}</td>
+                <td :class="`status status-${loan.status}`">{{ loan.status }}</td>
 
                 <td>
-                <button class="view-btn" @click="viewLoan(loan.id)">View</button>
+                  <button class="view-btn" @click="viewLoan(loan.id)">View</button>
                 </td>
-
               </tr>
             </tbody>
-
           </table>
         </div>
       </div>
-
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 // employee info
-const employeeId = localStorage.getItem("employee_id")
-const firstName = localStorage.getItem("employee_name") || "Employee"
-const role = localStorage.getItem("employee_role") || "Analyst"
-const avatar = ref("")
-const isAdmin = role.toLowerCase() === "admin"
+const employeeId = localStorage.getItem('employee_id')
+const firstName = localStorage.getItem('employee_name') || 'Employee'
+const role = localStorage.getItem('employee_role') || 'Analyst'
+const avatar = ref('')
+const isAdmin = role.toLowerCase() === 'admin'
 
-console.log("Employee ID:", employeeId)
-
+console.log('Employee ID:', employeeId)
 
 const loans = ref([])
 
@@ -95,40 +82,37 @@ const loadLoans = async () => {
     const res = await fetch(`http://localhost:3000/employee/loans/${employeeId}`)
     const data = await res.json()
 
-    loans.value = data.map(l => ({
+    loans.value = data.map((l) => ({
       id: l.id,
       customer: l.customer,
       amount: l.amount,
       interest: l.interest,
       start: new Date(l.start_date).toLocaleDateString(),
       end: new Date(l.end_date).toLocaleDateString(),
-      status: l.status
+      status: l.status,
     }))
   } catch (err) {
-    console.error("Failed to load loans", err)
+    console.error('Failed to load loans', err)
   }
 }
 
 const loadEmployeeInfo = async () => {
   try {
-    const res = await fetch(
-      `http://localhost:3000/employee/settings/${employeeId}`
-    )
+    const res = await fetch(`http://localhost:3000/employee/settings/${employeeId}`)
 
     if (!res.ok) {
-      console.error("Failed to load employee info. HTTP", res.status)
+      console.error('Failed to load employee info. HTTP', res.status)
       return
     }
 
     const data = await res.json()
 
     // avatar path from DB, fall back to default if missing
-    avatar.value = data.avatar || "/avatars/default.png"
+    avatar.value = data.avatar || '/avatars/default.png'
   } catch (err) {
-    console.error("Failed to load employee info:", err)
+    console.error('Failed to load employee info:', err)
   }
 }
-
 
 onMounted(() => {
   loadLoans()
@@ -136,29 +120,26 @@ onMounted(() => {
 })
 
 const logout = () => {
-  localStorage.removeItem("employee_token")
-  localStorage.removeItem("employee_id")
-  localStorage.removeItem("employee_name")
-  localStorage.removeItem("employee_role")
-  router.push("/employee/login")
+  localStorage.removeItem('employee_token')
+  localStorage.removeItem('employee_id')
+  localStorage.removeItem('employee_name')
+  localStorage.removeItem('employee_role')
+  router.push('/employee/login')
 }
 
 const goToSettings = () => {
-  const id = localStorage.getItem("employee_id");
-  router.push(`/employee/settings/${id}`);
-};
-
+  const id = localStorage.getItem('employee_id')
+  router.push(`/employee/settings/${id}`)
+}
 
 const viewLoan = (loanId) => {
   router.push(`/employee/loan/${loanId}`)
 }
 
-const goToAdminDashboard = () => {             
-  router.push("/admin/dashboard")
+const goToAdminDashboard = () => {
+  router.push('/admin/dashboard')
 }
-
 </script>
-
 
 <style scoped>
 .dashboard-wrapper {
@@ -282,6 +263,4 @@ td {
 .view-btn:hover {
   background: #2563eb;
 }
-
-
 </style>

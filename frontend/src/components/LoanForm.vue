@@ -1,5 +1,12 @@
 <template>
-  <div class="container loan-form">
+  <div :class="`container loan-form ${!homepage && 'dashboard'}`">
+    <!-- Success Modal -->
+    <Modal ref="successModal" :onAccept="onSuccess">
+      <template #body>
+        <div class="icon success"><v-icon icon="mdi-check-circle"></v-icon></div>
+        <div class="msg">{{ res.message }}</div>
+      </template>
+    </Modal>
     <v-form class="form">
       <v-container>
         <v-row class="amount">
@@ -8,7 +15,7 @@
             <CurrencyField
               disabled
               v-model="fieldAmount"
-              :options="{ currency: 'USD', valueRange: { min: 0, max: 20000 } }"
+              :options="{ currency: 'USD', valueRange: { min: 100, max: 20000 } }"
             />
           </v-col>
         </v-row>
@@ -53,7 +60,9 @@
 
         <v-row class="frequency">
           <v-col cols="3">Total to pay:</v-col>
-          <v-col> <b>$9,753.00 (fake for now)</b> </v-col>
+          <v-col>
+            <b>${{ totalToPay | 0 }}</b>
+          </v-col>
         </v-row>
       </v-container>
 
@@ -111,6 +120,19 @@
   background-color: #181818;
   color: white;
 }
+
+.container.dashboard {
+  background: none;
+  box-shadow: none;
+}
+.icon.success {
+  color: rgb(110, 172, 110);
+  font-size: 56px;
+}
+.icon.error {
+  color: #f55a5a;
+  font-size: 56px;
+}
 </style>
 
 <script>
@@ -119,12 +141,14 @@ import { frequencies, terms } from '@/utils/businessRules'
 import CurrencyField from '@/components/CurrencyField.vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
+import Modal from '@/components/Modal.vue'
 
 import loanSrv from '@/services/loan'
 
 export default {
   components: {
     CurrencyField,
+    Modal,
   },
 
   props: {
@@ -138,13 +162,13 @@ export default {
 
       frequencies,
       terms,
-      totalToPay: 50000,
 
       // Form
       fieldAmount: 1000,
       sliderAmount: 1000,
       frequency: 'monthly',
       term: null,
+      res: null,
 
       // Errors
       errorFeedback: null,
@@ -154,6 +178,21 @@ export default {
   computed: {
     termFrequencies() {
       return terms[this.frequency]
+    },
+    interest() {
+      // Base annual rate (APR)
+      const baseAPR = 0.1
+      const multiplier =
+        this.frequency === 'weekly' ? 1.0 : this.frequency === 'biweekly' ? 1.05 : 1.1
+      const termAdjustment = this.term * 0.005
+      const finalAPR = baseAPR * multiplier + termAdjustment
+      const interest = this.fieldAmount * finalAPR * (this.term / 12)
+      const percentage = (interest / this.fieldAmount) * 100
+      return Number(percentage.toFixed(2))
+    },
+    totalToPay() {
+      if (!this.interest) return '-'
+      return this.fieldAmount + (this.interest / 100) * this.fieldAmount
     },
   },
 
@@ -168,16 +207,24 @@ export default {
   setup: () => ({ v$: useVuelidate() }),
 
   methods: {
+    onSuccess() {
+      this.$router.push({ name: 'my-loans' })
+    },
+    openSuccessModal() {
+      if (this.$refs.successModal) {
+        this.$refs.successModal.dialog = true
+      }
+    },
     async applyLoan() {
       try {
-        const res = await loanSrv.applyLoan({
+        this.res = await loanSrv.applyLoan({
           amount: this.sliderAmount,
           frequency: this.frequency,
           term: this.term,
         })
 
         // Show success modal
-        // wip
+        this.openSuccessModal()
       } catch (error) {
         // Show error modal
         this.errorFeedback = error.message

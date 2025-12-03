@@ -25,12 +25,8 @@
         <p><strong>Frequency:</strong> {{ loan.frequency }}</p>
 
         <div class="loan-actions">
-          <button @click="takeAction('approve')" class="btn approve">
-            Approve
-          </button>
-          <button @click="takeAction('reject')" class="btn reject">
-            Reject
-          </button>
+          <button @click="takeAction('approve')" class="btn approve">Approve</button>
+          <button @click="takeAction('reject')" class="btn reject">Reject</button>
         </div>
 
         <!-- Loan history -->
@@ -58,7 +54,7 @@
                     <td>{{ item.interest }}%</td>
                     <td>{{ new Date(item.start_date).toLocaleDateString() }}</td>
                     <td>{{ new Date(item.end_date).toLocaleDateString() }}</td>
-                    <td class="status">{{ item.status }}</td>
+                    <td :class="`status status-${loan.status}`">{{ item.status }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -94,8 +90,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
@@ -110,7 +106,7 @@ const finance = ref({})
 const employment = ref({})
 
 const customerName = computed(() => {
-  if (!loan.value.first_name) return ""
+  if (!loan.value.first_name) return ''
   return `${loan.value.first_name} ${loan.value.last_name}`
 })
 
@@ -119,7 +115,7 @@ const loadLoan = async () => {
   const res = await fetch(`http://localhost:3000/loan/${loanId}`)
   const data = await res.json()
 
-  console.log("Loan API response:", data)
+  console.log('Loan API response:', data)
   loan.value = data
 
   if (loan.value && loan.value.customer_id) {
@@ -132,35 +128,29 @@ const loadLoan = async () => {
 
 // Load loan history
 const loadHistory = async (customerId) => {
-  const res = await fetch(
-    `http://localhost:3000/loan/customer/history/${customerId}`
-  )
+  const res = await fetch(`http://localhost:3000/loan/customer/history/${customerId}`)
   history.value = await res.json()
 }
 
 // Load financial info
 const loadFinance = async (customerId) => {
   try {
-    const res = await fetch(
-      `http://localhost:3000/customer/finance/${customerId}`
-    )
+    const res = await fetch(`http://localhost:3000/customer/finance/${customerId}`)
     if (!res.ok) return
     finance.value = await res.json()
   } catch (err) {
-    console.error("Error loading finance:", err)
+    console.error('Error loading finance:', err)
   }
 }
 
 // Load employment info
 const loadEmployment = async (customerId) => {
   try {
-    const res = await fetch(
-      `http://localhost:3000/customer/employment/${customerId}`
-    )
+    const res = await fetch(`http://localhost:3000/customer/employment/${customerId}`)
     if (!res.ok) return
     employment.value = await res.json()
   } catch (err) {
-    console.error("Error loading employment:", err)
+    console.error('Error loading employment:', err)
   }
 }
 
@@ -168,28 +158,28 @@ const loadEmployment = async (customerId) => {
 const takeAction = async (action) => {
   try {
     const res = await fetch(`http://localhost:3000/loan/action/${loanId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action }),
     })
 
     if (!res.ok) {
-      console.error("Failed to update loan status")
+      console.error('Failed to update loan status')
       return
     }
 
     await loadLoan() // refresh status & history
   } catch (err) {
-    console.error("Error updating loan status:", err)
+    console.error('Error updating loan status:', err)
   }
 }
 
 const logout = () => {
   localStorage.clear()
-  router.push("/employee/login")
+  router.push('/employee/login')
 }
 
-const goToSettings = () => alert("Settings coming soon!")
+const goToSettings = () => alert('Settings coming soon!')
 
 onMounted(() => {
   loadLoan()

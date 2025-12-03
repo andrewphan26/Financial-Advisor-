@@ -2,12 +2,18 @@
   <div class="container spendings">
     <div class="spendings-header">
       <h2>My Spendings</h2>
-      <v-btn class="new-spending-btn" color="primary" size="small" @click="onNewSpending">New spending</v-btn>
+      <v-btn class="new-spending-btn" color="primary" size="small" @click="onNewSpending"
+        >New spending</v-btn
+      >
     </div>
 
     <div class="summary">
-      <div>Total spent: <strong>{{ formatCurrency(totalSpent) }}</strong></div>
-      <div>Transactions: <strong>{{ transactions.length }}</strong></div>
+      <div>
+        Total spent: <strong>{{ formatCurrency(totalSpent) }}</strong>
+      </div>
+      <div>
+        Transactions: <strong>{{ transactions.length }}</strong>
+      </div>
     </div>
 
     <v-divider class="my-4"></v-divider>
@@ -19,7 +25,12 @@
         <v-col cols="3" class="header-cell">Sub Category</v-col>
         <v-col cols="3" class="header-cell amount">Amount</v-col>
       </v-row>
-      <v-row v-for="tx in transactions" :key="tx.id" class="transaction clickable" @click="onEditSpending(tx.id)">
+      <v-row
+        v-for="tx in transactions"
+        :key="tx.id"
+        class="transaction clickable"
+        @click="onEditSpending(tx.id)"
+      >
         <v-col cols="3">{{ tx.date }}</v-col>
         <v-col cols="3">{{ tx.category }}</v-col>
         <v-col cols="4">{{ tx.sub_category }}</v-col>
@@ -39,38 +50,38 @@ export default {
     transactions: {
       type: Array,
       required: true,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   emits: ['new-spending', 'edit-spending'],
   setup(props, { emit }) {
     const formatCurrency = (v) => toCurrency(v)
-    
+
     const totalSpent = computed(() => props.transactions.reduce((s, t) => s + t.amount, 0))
 
     const onNewSpending = () => emit('new-spending')
     const onEditSpending = (id) => emit('edit-spending', id)
 
-    return { 
+    return {
       formatCurrency,
       totalSpent,
       onNewSpending,
-      onEditSpending
+      onEditSpending,
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
 .spendings {
   padding: 10px 16px;
-  width: 80vw;
+  width: 1080px; /* width: 80vw; */
   max-width: none;
   box-sizing: border-box;
   position: sticky;
   bottom: 24px;
   left: 0;
-  margin-left: calc(-50vw + 50% + 350px);
+  /* margin-left: calc(-50vw + 50% + 350px); */
   z-index: 40;
   border-radius: 0;
 }
@@ -89,9 +100,9 @@ export default {
   justify-self: end;
 }
 .summary {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:4px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
   align-items: center;
   font-size: 14px;
   gap: 4px;
@@ -140,7 +151,7 @@ export default {
 
 .transactions-list .transaction {
   padding: 4px 3px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 14px;
 }
 
@@ -162,7 +173,7 @@ export default {
 }
 .empty {
   padding: 20px;
-  text-align:center;
+  text-align: center;
   color: #666;
 }
 </style>

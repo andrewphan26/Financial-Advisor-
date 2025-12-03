@@ -10,7 +10,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('../views/HomeView.vue'),
     },
 
     // About / Sample
@@ -43,13 +43,54 @@ const router = createRouter({
       name: 'customer-dashboard',
       component: () => import('../views/Customer/Dashboard.vue'),
       meta: { requiresAuth: true },
+      redirect: '/customer/dashboard/my-loans', // default tab
+      children: [
+        {
+          path: 'my-loans',
+          name: 'my-loans',
+          component: () => import('../views/Customer/Loans/MyLoans.vue'),
+          redirect: '/customer/dashboard/my-loans/home',
+          children: [
+            {
+              path: 'home',
+              name: 'my-loans-home',
+              component: () => import('../views/Customer/Loans/Home.vue'),
+            },
+            {
+              path: 'apply-loan',
+              name: 'my-loans-apply',
+              component: () => import('../views/Customer/Loans/NewLoan.vue'),
+            },
+            {
+              path: ':id',
+              name: 'my-loans-view',
+              component: () => import('../views/Customer/Loans/LoanView.vue'),
+            },
+          ],
+        },
+        {
+          path: 'personal-info',
+          name: 'personal-info',
+          component: () => import('../views/Customer/PersonalInfo.vue'),
+        },
+        {
+          path: 'employment-info',
+          name: 'employment-info',
+          component: () => import('../views/Customer/EmploymentInfo.vue'),
+        },
+        {
+          path: 'finance',
+          name: 'finance',
+          component: () => import('../views/Customer/Finance/Spendings.vue'),
+        },
+        {
+          path: 'notifications',
+          name: 'notifications',
+          component: () => import('../views/Customer/Notifications.vue'),
+        },
+      ],
     },
-    // {
-    //   path: '/customer/spendings',
-    //   name: 'customer-spendings',
-    //   component: () => import('../views/Customer/Finance/Spendings.vue'),
-    //   meta: { requiresAuth: true },
-    // },
+
     {
       path: '/customer/spendings/new',
       name: 'customer-spendings-new',
@@ -64,11 +105,11 @@ const router = createRouter({
     },
 
     // Loan View
-    {
-      path: '/loan',
-      name: 'loan-details',
-      component: () => import('../views/LoanView.vue'),
-    },
+    // {
+    //   path: '/loan',
+    //   name: 'loan-details',
+    //   component: () => import('../views/LoanView.vue'),
+    // },
 
     // Catch-all for unknown routes
     {

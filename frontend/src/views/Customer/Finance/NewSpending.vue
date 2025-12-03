@@ -82,7 +82,7 @@ export default {
           }
         } else {
           alert('Spending not found')
-          router.push({ name: 'customer-dashboard', query: { tab: 'option-4' } })
+          router.push({ name: 'finance' })
         }
       } catch (e) {
         console.error('Failed to load spending:', e)
@@ -122,7 +122,7 @@ export default {
           console.log('Spending created successfully:', result)
         }
 
-        router.push({ name: 'customer-dashboard', query: { tab: 'option-4' } })
+        router.push({ name: 'finance' })
       } catch (e) {
         console.error('Failed to save spending - Full error:', e)
         console.error('Error response:', e.response?.data)
@@ -143,7 +143,7 @@ export default {
       }
     }
 
-    const goBack = () => router.push({ name: 'customer-dashboard', query: { tab: 'option-4' } })
+    const goBack = () => router.push({ name: 'finance' })
 
     const onDelete = async () => {
       if (!confirm('Are you sure you want to delete this spending?')) {
@@ -154,7 +154,7 @@ export default {
         console.log('Deleting spending with id:', spendingId.value)
         await spendingSrv.deleteSpending(spendingId.value)
         console.log('Spending deleted successfully')
-        router.push({ name: 'customer-dashboard', query: { tab: 'option-4' } })
+        router.push({ name: 'finance' })
       } catch (e) {
         console.error('Failed to delete spending - Full error:', e)
         console.error('Error response:', e.response?.data)
