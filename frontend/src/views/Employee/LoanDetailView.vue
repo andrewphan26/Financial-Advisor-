@@ -1,11 +1,11 @@
 <template>
-  <div class="page">
+  <div class="page loan-detail-wrapper">
     <!-- Top Navigation -->
     <header class="header">
       <h2>Loan Details</h2>
 
       <div class="actions">
-        <button @click="goToSettings" class="btn">Settings</button>
+        <!-- <button @click="goToSettings" class="btn">Settings</button> -->
         <button @click="logout" class="btn danger">Sign Out</button>
       </div>
     </header>
@@ -19,7 +19,10 @@
         <p><strong>Loan ID:</strong> {{ loan.id }}</p>
         <p><strong>Amount:</strong> ${{ loan.amount }}</p>
         <p><strong>Status:</strong> {{ loan.status }}</p>
-        <p><strong>Created:</strong> {{ loan.created_at }}</p>
+        <p><strong>Created:</strong> {{ new Date(loan.created_date).toLocaleDateString() }}</p>
+        <p><strong>Interest:</strong> {{ loan.interest }}%</p>
+        <p><strong>Term:</strong> {{ loan.term }}</p>
+        <p><strong>Frequency:</strong> {{ loan.frequency }}</p>
 
         <div class="loan-actions">
           <button @click="takeAction('approve')" class="btn approve">
@@ -35,11 +38,31 @@
           <h3>Loan History</h3>
 
           <div class="history-scroll">
-            <ul v-if="history.length">
-              <li v-for="item in history" :key="item.id">
-                <strong>Loan #{{ item.id }}</strong> — {{ item.status }} — ${{ item.amount }}
-              </li>
-            </ul>
+            <div class="table-card" v-if="history.length">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Loan ID</th>
+                    <th>Amount</th>
+                    <th>Interest</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr v-for="item in history" :key="item.id">
+                    <td>{{ item.id }}</td>
+                    <td>${{ item.amount.toLocaleString() }}</td>
+                    <td>{{ item.interest }}%</td>
+                    <td>{{ new Date(item.start_date).toLocaleDateString() }}</td>
+                    <td>{{ new Date(item.end_date).toLocaleDateString() }}</td>
+                    <td class="status">{{ item.status }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             <p v-else>No previous loan history.</p>
           </div>
@@ -180,6 +203,13 @@ onMounted(() => {
   margin: auto;
 }
 
+.loan-detail-wrapper {
+  background: #141414;
+  min-height: 100vh;
+  padding: 30px;
+  color: white;
+}
+
 /* Top bar */
 .header {
   display: flex;
@@ -259,5 +289,29 @@ onMounted(() => {
 .btn.danger {
   background: #d9534f;
   color: white;
+}
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 10px;
+  color: #bfbfbf;
+  font-size: 14px;
+  border-bottom: 1px solid #333;
+}
+
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 15px;
+}
+
+.status {
+  color: #4ade80; /* green for active */
+  font-weight: 600;
 }
 </style>

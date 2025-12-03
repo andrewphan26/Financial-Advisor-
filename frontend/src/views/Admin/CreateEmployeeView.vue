@@ -95,6 +95,7 @@ const logout = () => router.push("/employee/login");
   padding: 20px;
   background: #111;
   min-height: 100vh;
+  min-width: 480px;
   color: white;
 }
 
