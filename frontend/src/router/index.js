@@ -1,21 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useRegister } from '@/stores/register'
+import AdminDashboardView from '../views/Admin/AdminDashBoardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // Home
     {
       path: '/',
       name: 'home',
       component: HomeView,
     },
+
+    // About / Sample
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
     {
@@ -36,11 +37,29 @@ const router = createRouter({
       component: () => import('../views/Customer/Login.vue'),
     },
 
-    // Customer
+    // Customer Dashboard
     {
       path: '/customer/dashboard',
       name: 'customer-dashboard',
       component: () => import('../views/Customer/Dashboard.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/customer/spendings',
+      name: 'customer-spendings',
+      component: () => import('../views/Customer/Finance/Spendings.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/customer/spendings/new',
+      name: 'customer-spendings-new',
+      component: () => import('../views/Customer/Finance/NewSpending.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/customer/spendings/:id/edit',
+      name: 'customer-spendings-edit',
+      component: () => import('../views/Customer/Finance/NewSpending.vue'),
       meta: { requiresAuth: true },
     },
 
@@ -59,32 +78,40 @@ const router = createRouter({
   ],
 })
 
+// ======================================================
+//                     ROUTE GUARD
+// ======================================================
+
 router.beforeEach((to, from, next) => {
   const registerStore = useRegister()
   const token = localStorage.getItem('token')
   const isLoggedIn = !!token
 
-  // If already logged in, redirect to dashboard
+  // Redirect logged-in users away from login/register
   const publicPages = ['home', 'login', 'register']
   if (isLoggedIn && publicPages.includes(to.name)) {
     return next({ name: 'customer-dashboard' })
   }
 
-  // Protect routes that need auth
+  // Protect Customer Routes
   if (to.meta.requiresAuth && !token) {
     return next({ name: 'login' })
   }
 
-  // Warn user if leaving page on registration process
-  // const isLeavingRegister = from.name === 'register'
-  // if (
-  //   isLeavingRegister &&
-  //   (registerStore.hasLoanInProcess || registerStore.registrationInProcess)
-  // ) {
-  //   if (!confirm('Leave this page? Your progress will reset.')) {
-  //     return next(false)
-  //   }
-  // }
+  // Employee / Admin Tokens
+  const employeeToken = localStorage.getItem('employee_token')
+  const adminToken = localStorage.getItem('admin_token')
+
+  // Protect Employee Routes
+  if (to.meta.requiresEmployeeAuth && !employeeToken && !adminToken) {
+    return next({ name: 'employee-login' })
+  }
+
+  // Protect Admin Routes
+  if (to.meta.requiresAdminAuth && !adminToken) {
+    return next({ name: 'employee-login' })
+    // later redirect to admin-login if you create one
+  }
 
   next()
 })
