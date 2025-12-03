@@ -7,6 +7,7 @@ import customerRoutes from "./routes/customer.js";
 import employeeRoutes from "./routes/employee.js";
 import loanRoutes from "./routes/loan.js";
 import adminRoutes from "./routes/admin.js";
+import notificationsRoutes from "./routes/notifications.js";
 
 import spendingRoutes from "./routes/customerSpending.js";
 
@@ -23,6 +24,7 @@ app.use("/customer", customerRoutes);
 app.use("/employee", employeeRoutes);
 app.use("/loan", loanRoutes);
 app.use("/admin", adminRoutes);
+app.use("/notifications", notificationsRoutes);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Backend listening on ${port}`));

@@ -13,6 +13,14 @@ function nextPaymentAmount(amount, interest, term) {
   return Number((totalToPay(amount, interest) / term).toFixed(2));
 }
 
+async function insertNotification(db, customerId, description) {
+  await db.query(
+    `INSERT INTO Notifications (customer_id, description, date)
+     VALUES (?, ?, NOW())`,
+    [customerId, description]
+  );
+}
+
 // Get loans assigned to an employee
 // Get loans assigned to this employee
 router.get("/loans/:employeeId", async (req, res) => {
@@ -95,8 +103,14 @@ router.put("/action/:loanId", async (req, res) => {
   const newStatus = action === "approve" ? "approved" : "rejected";
 
   try {
+    // Fetch loan so we know customer_id
+    const [[loan]] = await db.query(
+      `SELECT customer_id FROM Loans WHERE id = ?`,
+      [id]
+    );
+    if (!loan) return res.status(404).json({ message: "Loan not found" });
+
     if (action === "approve") {
-      // Set start_date to now, calculate next_payment_date and end_date based on frequency and term
       await db.query(
         `UPDATE Loans
          SET status = ?,
@@ -116,11 +130,23 @@ router.put("/action/:loanId", async (req, res) => {
          WHERE id = ?`,
         [newStatus, id]
       );
+
+      await insertNotification(
+        db,
+        loan.customer_id,
+        `Your loan #${id} has been approved`
+      );
     } else {
-      await db.query("UPDATE Loans SET status = ? WHERE id = ?", [
+      await db.query(`UPDATE Loans SET status = ? WHERE id = ?`, [
         newStatus,
         id,
       ]);
+
+      await insertNotification(
+        db,
+        loan.customer_id,
+        `Your loan #${id} has been rejected`
+      );
     }
 
     res.json({ success: true, status: newStatus });
@@ -204,14 +230,24 @@ router.put("/:loanId/pay-all", verifyToken, async (req, res) => {
     ]);
     if (!loan) return res.status(404).json({ message: "Loan not found" });
 
+    const totalPaid = totalToPay(loan.amount, loan.interest);
+
     await db.query(
-      "UPDATE Loans SET amount_paid = ?, status = 'completed', next_payment_date = NULL WHERE id = ?",
-      [totalToPay(loan.amount, loan.interest), loanId]
+      `UPDATE Loans
+       SET amount_paid = ?, status = 'completed', next_payment_date = NULL
+       WHERE id = ?`,
+      [totalPaid, loanId]
+    );
+
+    await insertNotification(
+      db,
+      loan.customer_id,
+      `You have fully paid loan #${loanId}`
     );
 
     res.json({
       success: true,
-      amount_paid: totalToPay(loan.amount, loan.interest),
+      amount_paid: totalPaid,
       status: "completed",
       next_payment_date: null,
     });
@@ -229,35 +265,33 @@ router.put("/:loanId/pay-due", verifyToken, async (req, res) => {
     const [[loan]] = await db.query("SELECT * FROM Loans WHERE id = ?", [
       loanId,
     ]);
-
     if (!loan) return res.status(404).json({ message: "Loan not found" });
 
     const dueAmount = nextPaymentAmount(loan.amount, loan.interest, loan.term);
-
-    console.log(loan.interest, dueAmount);
-
     const newAmountPaid =
       parseFloat(loan.amount_paid || 0) + parseFloat(dueAmount);
-    const isCompleted =
-      newAmountPaid >= parseFloat(totalToPay(loan.amount, loan.interest));
+
+    const totalLoanAmount = parseFloat(totalToPay(loan.amount, loan.interest));
+    const isCompleted = newAmountPaid >= totalLoanAmount;
 
     let nextPaymentDate = loan.next_payment_date;
-    if (!isCompleted) {
-      const currentDate = new Date(loan.next_payment_date || new Date());
-      if (loan.frequency === "weekly")
-        currentDate.setDate(currentDate.getDate() + 7);
-      else if (loan.frequency === "biweekly")
-        currentDate.setDate(currentDate.getDate() + 14);
-      else if (loan.frequency === "monthly")
-        currentDate.setMonth(currentDate.getMonth() + 1);
 
-      nextPaymentDate = currentDate.toISOString().slice(0, 10);
+    if (!isCompleted) {
+      const dt = new Date(nextPaymentDate || new Date());
+
+      if (loan.frequency === "weekly") dt.setDate(dt.getDate() + 7);
+      if (loan.frequency === "biweekly") dt.setDate(dt.getDate() + 14);
+      if (loan.frequency === "monthly") dt.setMonth(dt.getMonth() + 1);
+
+      nextPaymentDate = dt.toISOString().slice(0, 10);
     } else {
       nextPaymentDate = null;
     }
 
     await db.query(
-      "UPDATE Loans SET amount_paid = ?, status = ?, next_payment_date = ? WHERE id = ?",
+      `UPDATE Loans 
+       SET amount_paid = ?, status = ?, next_payment_date = ? 
+       WHERE id = ?`,
       [
         newAmountPaid,
         isCompleted ? "completed" : loan.status,
@@ -265,6 +299,21 @@ router.put("/:loanId/pay-due", verifyToken, async (req, res) => {
         loanId,
       ]
     );
+
+    // Notification text
+    if (isCompleted) {
+      await insertNotification(
+        db,
+        loan.customer_id,
+        `You completed the remaining balance of loan #${loanId}`
+      );
+    } else {
+      await insertNotification(
+        db,
+        loan.customer_id,
+        `You successfully made a due payment of $${dueAmount} for loan #${loanId}`
+      );
+    }
 
     res.json({
       success: true,
