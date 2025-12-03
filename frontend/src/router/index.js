@@ -104,12 +104,78 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
 
-    // Loan View
-    // {
-    //   path: '/loan',
-    //   name: 'loan-details',
-    //   component: () => import('../views/LoanView.vue'),
-    // },
+    // Employee Login
+    {
+      path: '/employee/login',
+      name: 'employee-login',
+      component: () => import('../views/Employee/EmployeeLoginView.vue'),
+    },
+
+    // Analyst Dashboard
+    {
+      path: '/employee/dashboard',
+      name: 'analyst-dashboard',
+      component: () => import('../views/Employee/AnalystDashboardView.vue'),
+      meta: { requiresEmployeeAuth: true },
+    },
+
+    // Loan Info
+    {
+      path: '/employee/loans',
+      name: 'employee-loans',
+      component: () => import('../views/Employee/LoanInfoView.vue'),
+      meta: { requiresEmployeeAuth: true },
+    },
+
+    // Employee Loan Details
+    {
+      path: '/employee/loan/:id',
+      name: 'employee-loan-details',
+      component: () => import('../views/Employee/LoanDetailView.vue'),
+      meta: { requiresEmployeeAuth: true },
+    },
+
+    // Employee Settings
+    {
+      path: '/employee/settings/:id',
+      name: 'employee-settings',
+      component: () => import('../views/Employee/EmployeeSettingsView.vue'),
+      meta: { requiresEmployeeAuth: true },
+    },
+
+    // -------------------------------------------- //
+    //                 ADMIN ROUTES                 //
+    // -------------------------------------------- //
+
+    {
+      path: '/admin/dashboard',
+      name: 'admin-dashboard',
+      component: AdminDashboardView,
+      meta: { requiresAdminAuth: true },
+    },
+
+    {
+      path: '/admin/users/create',
+      name: 'admin-create-employee',
+      component: () => import('../views/Admin/CreateEmployeeView.vue'),
+      meta: { requiresAdminAuth: true },
+    },
+
+    {
+      path: '/admin/users/edit/:id',
+      name: 'admin-edit-user',
+      component: () => import('../views/Admin/EditUserView.vue'),
+      meta: { requiresAdminAuth: true },
+    },
+
+    // -------------------------------------------- //
+    //               LEGACY PATH SUPPORT            //
+    // -------------------------------------------- //
+
+    {
+      path: '/admindashboardview',
+      redirect: '/admin/dashboard', // Forward old path to new one
+    },
 
     // Catch-all for unknown routes
     {

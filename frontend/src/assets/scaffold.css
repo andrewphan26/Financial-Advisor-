@@ -110,15 +110,15 @@ table.jeffrey .status {
   font-weight: 600;
 }
 .status-pending {
-  color: #dabc5c;
+  color: #dabc5c !important;
 }
 .status-approved {
-  color: #4ade80; /* green for active */
+  color: #4ade80 !important; /* green for active */
 }
 
 .status-rejected,
 .status-cancelled {
-  color: #de4a4a;
+  color: #de4a4a !important;
 }
 
 .badge.pending {
