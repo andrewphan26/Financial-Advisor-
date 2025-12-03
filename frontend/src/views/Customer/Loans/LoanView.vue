@@ -1,10 +1,19 @@
 <template>
   <!-- centered card -->
   <div class="loan-card" v-if="loanInfo !== null">
+    <!-- Success Modal -->
+    <Modal ref="successModal" :onAccept="onSuccess">
+      <template #body>
+        <div class="icon success"><v-icon icon="mdi-check-circle"></v-icon></div>
+        <div class="msg">{{ feedbackMsg }}</div>
+      </template>
+    </Modal>
     <div class="title-row">
       <h1 class="loan-id">ID: {{ loanInfo.id }}</h1>
       <span class="loan-title">Loan Details</span>
-      <span :class="`loan-status badge ${loanInfo.status}`">{{ loanInfo.status }}</span>
+      <span :class="`loan-status badge ${loanInfo.status}`">{{
+        loanInfo.status === 'approved' ? 'active' : loanInfo.status
+      }}</span>
     </div>
 
     <!-- 3-way layout INSIDE the card -->
@@ -69,7 +78,11 @@
             <div class="info-side left-side">
               <div class="subsection-title">Next Payment</div>
               <div class="value-pill">
-                {{ new Date(loanInfo.next_payment_date).toLocaleDateString() }}
+                {{
+                  loanInfo.next_payment_date
+                    ? new Date(loanInfo.next_payment_date).toLocaleDateString()
+                    : '-'
+                }}
               </div>
             </div>
 
@@ -78,12 +91,16 @@
             <div class="info-side right-side">
               <div class="metric-row">
                 <span class="label">Start Date:</span>
-                <span class="value">{{ new Date(loanInfo.start_date).toLocaleDateString() }}</span>
+                <span class="value">{{
+                  loanInfo.start_date ? new Date(loanInfo.start_date).toLocaleDateString() : '-'
+                }}</span>
               </div>
 
               <div class="metric-row">
                 <span class="label">End Date:</span>
-                <span class="value">{{ new Date(loanInfo.end_date).toLocaleDateString() }}</span>
+                <span class="value">{{
+                  loanInfo.end_date ? new Date(loanInfo.end_date).toLocaleDateString() : '-'
+                }}</span>
               </div>
 
               <div class="metric-row">
@@ -98,11 +115,13 @@
 
     <div class="actions">
       <button class="primary-btn" @click="toDashboard()">Back to Dashboard</button>
-      <div class="pay-actions">
-        <button class="primary-btn mr-6 due" @click="toDashboard()">
+      <div class="pay-actions" v-if="['active', 'approved'].includes(loanInfo.status)">
+        <button class="primary-btn mr-6 due" @click="paydue()">
           Pay due ( ${{ nextPaymentAmount }} )
         </button>
-        <button class="primary-btn all" @click="toDashboard()">Pay all</button>
+        <button class="primary-btn all" @click="payall()">
+          Pay all ( ${{ remainingAmount }} )
+        </button>
       </div>
     </div>
   </div>
@@ -275,53 +294,31 @@
 </style>
 
 <script>
+import Modal from '@/components/Modal.vue'
 import loanSrv from '@/services/loan.js'
 
 export default {
   data() {
     return {
+      feedbackMsg: null,
       loanInfo: null,
     }
   },
+  components: {
+    Modal,
+  },
   computed: {
+    amountOwed() {
+      return (
+        parseFloat(this.loanInfo.amount) +
+        (this.loanInfo.interest / 100) * parseFloat(this.loanInfo.amount)
+      )
+    },
     remainingAmount() {
-      return (parseFloat(this.loanInfo.amount) - parseFloat(this.loanInfo.amount_paid)).toFixed(2)
+      return (this.amountOwed.toFixed(2) - parseFloat(this.loanInfo.amount_paid)).toFixed(2)
     },
     nextPaymentAmount() {
-      if (!this.loanInfo.amount || !this.loanInfo.term || !this.loanInfo.frequency) return 0
-
-      const principal = parseFloat(this.loanInfo.amount)
-      if (isNaN(principal)) return 0
-
-      const baseAPR = 0.1
-      const multiplier =
-        this.loanInfo.frequency === 'weekly'
-          ? 1.0
-          : this.loanInfo.frequency === 'biweekly'
-            ? 1.05
-            : 1.1 // monthly
-
-      const termAdjustment = this.loanInfo.term * 0.005
-      const finalAPR = baseAPR * multiplier + termAdjustment
-
-      const totalInterest = principal * finalAPR * (this.loanInfo.term / 12)
-
-      const totalToPay = principal + totalInterest
-
-      let numberOfPayments = 0
-
-      if (this.loanInfo.frequency === 'monthly') {
-        numberOfPayments = this.loanInfo.term
-      } else if (this.loanInfo.frequency === 'weekly') {
-        numberOfPayments = this.loanInfo.term
-      } else if (this.loanInfo.frequency === 'biweekly') {
-        numberOfPayments = this.loanInfo.term * 2
-      }
-      console.log('numberOfPayments', numberOfPayments)
-
-      if (numberOfPayments <= 0) return 0
-
-      return Number((totalToPay / numberOfPayments).toFixed(2))
+      return Number((this.amountOwed / this.loanInfo.term).toFixed(2))
     },
   },
   methods: {
@@ -342,6 +339,34 @@ export default {
         biweekly: 'Weeks',
       }
       return `${freq != 'biweekly' ? term : term * 2} ${unit[freq]}`
+    },
+    openSuccessModal() {
+      if (this.$refs.successModal) {
+        this.$refs.successModal.dialog = true
+      }
+    },
+    async paydue() {
+      try {
+        const res = await loanSrv.paydue(this.loanInfo.id)
+        console.log(this.res)
+        this.feedbackMsg = `You have paid ${this.nextPaymentAmount}`
+
+        // Show success modal
+        this.openSuccessModal()
+      } catch (error) {}
+    },
+    async payall() {
+      try {
+        const res = await loanSrv.payall(this.loanInfo.id)
+        console.log(this.res)
+        this.feedbackMsg = `You have paid ${this.remainingAmount}`
+
+        // Show success modal
+        this.openSuccessModal()
+      } catch (error) {}
+    },
+    onSuccess() {
+      this.init()
     },
   },
 

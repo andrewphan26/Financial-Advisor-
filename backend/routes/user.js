@@ -68,7 +68,7 @@ async function createEmploymentInfo(db, userId, employmentInfo) {
 }
 
 // Loan helpers
-function calculateInterest(amount, term, frequency) {
+export function calculateInterest(amount, term, frequency) {
   // base annual rate (APR)
   const baseAPR = 0.1;
 
@@ -377,4 +377,5 @@ router.post("/apply-loan", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 export default router;

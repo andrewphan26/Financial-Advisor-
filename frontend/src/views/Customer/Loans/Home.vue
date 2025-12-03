@@ -28,9 +28,15 @@
               @click="toLoanDetail(item.id)"
             >
               <td>${{ item.amount }}</td>
-              <td>{{ new Date(item.start_date).toLocaleDateString() }}</td>
-              <td>{{ new Date(item.end_date).toLocaleDateString() }}</td>
-              <td>{{ new Date(item.next_payment_date).toLocaleDateString() }}</td>
+              <td>{{ item.start_date ? new Date(item.start_date).toLocaleDateString() : '-' }}</td>
+              <td>{{ item.end_date ? new Date(item.end_date).toLocaleDateString() : '-' }}</td>
+              <td>
+                {{
+                  item.next_payment_date
+                    ? new Date(item.next_payment_date).toLocaleDateString()
+                    : '-'
+                }}
+              </td>
               <td>{{ item.frequency }}</td>
               <td>{{ formattedTerm(item.term, item.frequency) }}</td>
 

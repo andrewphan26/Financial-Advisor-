@@ -8,7 +8,7 @@
     <div class="user-opts">
       <slot name="user-opts">
         <v-btn class="sign-out btn" v-if="isLoggedIn" @click="logout">Sign out</v-btn>
-        <v-btn class="sign-in btn" v-else @click="toLogin">Sign in</v-btn>
+        <!-- <v-btn class="sign-in btn" v-else @click="toLogin">Sign in</v-btn> -->
       </slot>
     </div>
   </div>

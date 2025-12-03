@@ -52,9 +52,13 @@
                     <td>{{ item.id }}</td>
                     <td>${{ item.amount.toLocaleString() }}</td>
                     <td>{{ item.interest }}%</td>
-                    <td>{{ new Date(item.start_date).toLocaleDateString() }}</td>
-                    <td>{{ new Date(item.end_date).toLocaleDateString() }}</td>
-                    <td :class="`status status-${loan.status}`">{{ item.status }}</td>
+                    <td>
+                      {{ item.start_date ? new Date(item.start_date).toLocaleDateString() : '-' }}
+                    </td>
+                    <td>
+                      {{ item.end_date ? new Date(item.end_date).toLocaleDateString() : '-' }}
+                    </td>
+                    <td :class="`status status-${item.status}`">{{ item.status }}</td>
                   </tr>
                 </tbody>
               </table>

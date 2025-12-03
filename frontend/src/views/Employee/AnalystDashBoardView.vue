@@ -84,11 +84,11 @@ const loadLoans = async () => {
 
     loans.value = data.map((l) => ({
       id: l.id,
-      customer: l.customer,
+      customer: l.customer_first_name + ' ' + l.customer_last_name,
       amount: l.amount,
       interest: l.interest,
-      start: new Date(l.start_date).toLocaleDateString(),
-      end: new Date(l.end_date).toLocaleDateString(),
+      start: l.start_date ? new Date(l.start_date).toLocaleDateString() : '-',
+      end: l.end_date ? new Date(l.end_date).toLocaleDateString() : '-',
       status: l.status,
     }))
   } catch (err) {

@@ -1,8 +1,17 @@
 import express from "express";
 import db from "../db/mysqlConn.js";
 import { verifyToken } from "../middleware/auth.js";
+import { calculateInterest } from "./user.js";
 
 const router = express.Router();
+
+function totalToPay(amount, interest) {
+  return parseFloat(amount) + (interest / 100) * parseFloat(amount);
+}
+
+function nextPaymentAmount(amount, interest, term) {
+  return Number((totalToPay(amount, interest) / term).toFixed(2));
+}
 
 // Get loans assigned to an employee
 // Get loans assigned to this employee
@@ -81,13 +90,13 @@ router.get("/:loanId", async (req, res) => {
 // Approve or Reject a loan
 router.put("/action/:loanId", async (req, res) => {
   const id = req.params.loanId;
-  const { action } = req.body; // "approve" or "reject"
+  const { action } = req.body;
 
   const newStatus = action === "approve" ? "approved" : "rejected";
 
   try {
     if (action === "approve") {
-      // Set start_date to now and calculate next_payment_date based on frequency
+      // Set start_date to now, calculate next_payment_date and end_date based on frequency and term
       await db.query(
         `UPDATE Loans
          SET status = ?,
@@ -96,6 +105,12 @@ router.put("/action/:loanId", async (req, res) => {
                WHEN frequency = 'weekly' THEN DATE_ADD(NOW(), INTERVAL 1 WEEK)
                WHEN frequency = 'biweekly' THEN DATE_ADD(NOW(), INTERVAL 2 WEEK)
                WHEN frequency = 'monthly' THEN DATE_ADD(NOW(), INTERVAL 1 MONTH)
+               ELSE NULL
+             END,
+             end_date = CASE
+               WHEN frequency = 'weekly' THEN DATE_ADD(NOW(), INTERVAL term WEEK)
+               WHEN frequency = 'biweekly' THEN DATE_ADD(NOW(), INTERVAL term * 2 WEEK)
+               WHEN frequency = 'monthly' THEN DATE_ADD(NOW(), INTERVAL term MONTH)
                ELSE NULL
              END
          WHERE id = ?`,
@@ -176,6 +191,90 @@ router.get("/customer/:loanId", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load loan details" });
+  }
+});
+
+// Pay the full remaining amount for a loan
+router.put("/:loanId/pay-all", verifyToken, async (req, res) => {
+  const loanId = req.params.loanId;
+
+  try {
+    const [[loan]] = await db.query("SELECT * FROM Loans WHERE id = ?", [
+      loanId,
+    ]);
+    if (!loan) return res.status(404).json({ message: "Loan not found" });
+
+    await db.query(
+      "UPDATE Loans SET amount_paid = ?, status = 'completed', next_payment_date = NULL WHERE id = ?",
+      [totalToPay(loan.amount, loan.interest), loanId]
+    );
+
+    res.json({
+      success: true,
+      amount_paid: totalToPay(loan.amount, loan.interest),
+      status: "completed",
+      next_payment_date: null,
+    });
+  } catch (err) {
+    console.error("Pay all error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Pay due amount for a loan
+router.put("/:loanId/pay-due", verifyToken, async (req, res) => {
+  const loanId = req.params.loanId;
+
+  try {
+    const [[loan]] = await db.query("SELECT * FROM Loans WHERE id = ?", [
+      loanId,
+    ]);
+
+    if (!loan) return res.status(404).json({ message: "Loan not found" });
+
+    const dueAmount = nextPaymentAmount(loan.amount, loan.interest, loan.term);
+
+    console.log(loan.interest, dueAmount);
+
+    const newAmountPaid =
+      parseFloat(loan.amount_paid || 0) + parseFloat(dueAmount);
+    const isCompleted =
+      newAmountPaid >= parseFloat(totalToPay(loan.amount, loan.interest));
+
+    let nextPaymentDate = loan.next_payment_date;
+    if (!isCompleted) {
+      const currentDate = new Date(loan.next_payment_date || new Date());
+      if (loan.frequency === "weekly")
+        currentDate.setDate(currentDate.getDate() + 7);
+      else if (loan.frequency === "biweekly")
+        currentDate.setDate(currentDate.getDate() + 14);
+      else if (loan.frequency === "monthly")
+        currentDate.setMonth(currentDate.getMonth() + 1);
+
+      nextPaymentDate = currentDate.toISOString().slice(0, 10);
+    } else {
+      nextPaymentDate = null;
+    }
+
+    await db.query(
+      "UPDATE Loans SET amount_paid = ?, status = ?, next_payment_date = ? WHERE id = ?",
+      [
+        newAmountPaid,
+        isCompleted ? "completed" : loan.status,
+        nextPaymentDate,
+        loanId,
+      ]
+    );
+
+    res.json({
+      success: true,
+      amount_paid: newAmountPaid,
+      status: isCompleted ? "completed" : loan.status,
+      next_payment_date: nextPaymentDate,
+    });
+  } catch (err) {
+    console.error("Pay due error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

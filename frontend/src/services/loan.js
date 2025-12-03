@@ -32,8 +32,32 @@ function getLoanInfo(loanId) {
   })
 }
 
+function paydue(loanId) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      method: 'PUT',
+      path: `/loan/${loanId}/pay-due`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
+function payall(loanId) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      method: 'PUT',
+      path: `/loan/${loanId}/pay-all`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
 export default {
   applyLoan,
   getCustomerLoans,
   getLoanInfo,
+  paydue,
+  payall,
 }
