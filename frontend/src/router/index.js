@@ -44,6 +44,13 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
 
+    // Loan View
+    {
+      path: '/loan',
+      name: 'loan-details',
+      component: () => import('../views/LoanView.vue'),
+    },
+
     // Catch-all for unknown routes
     {
       path: '/:catchAll(.*)',
