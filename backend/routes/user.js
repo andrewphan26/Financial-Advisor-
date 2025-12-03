@@ -344,13 +344,128 @@ router.get("/personal-info", verifyToken, async (req, res) => {
     res.json({
       id: user.id,
       email: user.email,
-      type: user.type,
-      role: user.role,
+      address: user.address,
       firstName: user.first_name,
       lastName: user.last_name,
+      phone: user.phone,
     });
   } catch (error) {
     console.error("Fetch user error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/personal-info", verifyToken, async (req, res) => {
+  const userId = req.user.id;
+
+  const { firstName, lastName, phone, address, email } = req.body;
+
+  try {
+    // Validate required fields
+    if (!firstName || !lastName || !email) {
+      return res
+        .status(400)
+        .json({ message: "First name, last name, and email are required" });
+    }
+
+    // Check if new email already exists for a different user
+    const [existing] = await db.query(
+      "SELECT id FROM User WHERE email = ? AND id != ?",
+      [email, userId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        message: "This email is already in use by another account",
+      });
+    }
+
+    await db.query(
+      `UPDATE User
+       SET first_name = ?, 
+           last_name = ?, 
+           phone = ?, 
+           address = ?, 
+           email = ?
+       WHERE id = ?`,
+      [firstName, lastName, phone || null, address || null, email, userId]
+    );
+
+    res.json({
+      success: true,
+      message: "Personal information updated successfully",
+    });
+  } catch (error) {
+    console.error("Update personal info error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/employment-info", verifyToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const [rows] = await db.query(
+      `SELECT company, role, address, phone, email, monthly_salary
+       FROM EmploymentInfo
+       WHERE customer_id = ?`,
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Employment info not found" });
+    }
+
+    const emp = rows[0];
+
+    res.json({
+      company: emp.company,
+      role: emp.role,
+      address: emp.address,
+      phone: emp.phone,
+      email: emp.email,
+      monthlySalary: emp.monthly_salary,
+    });
+  } catch (error) {
+    console.error("Fetch employment info error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/employment-info", verifyToken, async (req, res) => {
+  const userId = req.user.id;
+
+  const { company, role, address, phone, email, monthlySalary } = req.body;
+
+  try {
+    // Update employment info with COALESCE to keep existing values
+    await db.query(
+      `UPDATE EmploymentInfo
+       SET 
+         company = COALESCE(?, company),
+         role = COALESCE(?, role),
+         address = COALESCE(?, address),
+         phone = COALESCE(?, phone),
+         email = COALESCE(?, email),
+         monthly_salary = COALESCE(?, monthly_salary)
+       WHERE customer_id = ?`,
+      [
+        company || null,
+        role || null,
+        address || null,
+        phone || null,
+        email || null,
+        monthlySalary || null,
+        userId,
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: "Employment information updated successfully",
+    });
+  } catch (error) {
+    console.error("Update employment info error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });

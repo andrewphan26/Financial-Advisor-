@@ -68,6 +68,40 @@ function getPersonalInfo() {
   })
 }
 
+function getEmploymentInfo() {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      path: `/user/employment-info/`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
+function updatePersonalInfo(data) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      data,
+      method: 'PUT',
+      path: `/user/personal-info/`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
+function updateEmploymentInfo(data) {
+  return new Promise((resolve, reject) => {
+    requestSrv({
+      data,
+      method: 'PUT',
+      path: `/user/employment-info/`,
+    })
+      .then((res) => resolve(res.data))
+      .catch((error) => reject(error.response.data))
+  })
+}
+
 export default {
   register,
   registerCustomer,
@@ -76,5 +110,8 @@ export default {
   login,
 
   getPersonalInfo,
+  getEmploymentInfo,
+  updatePersonalInfo,
+  updateEmploymentInfo,
   getUserInfo,
 }
