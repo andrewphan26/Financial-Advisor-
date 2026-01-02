@@ -1,0 +1,167 @@
+label {
+  display: block;
+}
+
+/* Form */
+form .actions {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+}
+form .actions > * {
+  display: block;
+}
+.errors-feedback {
+  color: #f55a5a;
+}
+
+/* Buttons */
+.btn {
+}
+.btn.common {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+}
+.btn.submit {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+}
+.btn.accept {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+  border: rgb(143, 143, 143) 1px solid;
+}
+.btn.deny {
+  --v-btn-height: 0;
+  padding: 12px 68px;
+  background-color: #f55a5a;
+  color: white;
+}
+
+.link-btn {
+  text-decoration: underline;
+  font-weight: bold;
+  color: rgb(131, 159, 219);
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container,
+.main-container {
+  background-color: #2c2c2c;
+  box-shadow:
+    rgba(0, 0, 0, 0.1) 0px 4px 6px -1px,
+    rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+
+  border-radius: 4px;
+
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.main-container {
+  min-height: 80vh;
+  width: 1200px;
+}
+
+*.center {
+  align-items: center;
+  justify-content: center;
+}
+*.sb {
+  justify-content: space-between;
+}
+*.se {
+  justify-content: space-evenly;
+}
+
+.full-w {
+  width: 100%;
+}
+
+table.jeffrey {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.jeffrey th {
+  text-align: left;
+  padding: 10px;
+  color: #bfbfbf;
+  font-size: 14px;
+  border-bottom: 1px solid #333;
+}
+
+table.jeffrey td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 15px;
+}
+
+table.jeffrey .status {
+  font-weight: 600;
+}
+.status-pending {
+  color: #dabc5c !important;
+}
+.status-approved {
+  color: #4ade80 !important; /* green for active */
+}
+
+.status-rejected,
+.status-cancelled {
+  color: #de4a4a !important;
+}
+
+.badge.pending {
+  background-color: #dabc5c;
+}
+.badge.approved {
+  background-color: #4ade80;
+}
+.badge.rejected,
+.badge.cancelled {
+  background-color: #de4a4a;
+}
+
+.dashboard-item {
+  min-width: 1000px;
+  background: #222; /* dark card */
+  border-radius: 8px;
+  padding: 32px 30px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  color: #f5f5f5;
+  box-sizing: border-box;
+}
+
+.primary-btn {
+  padding: 12px 36px;
+  border-radius: 4px;
+  border: none;
+  background: #ffffff;
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid white;
+}
+
+.title-row h2 {
+  font-weight: bold;
+}

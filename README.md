@@ -1,2 +1,2 @@
-# Financial-Advisor-
-Designed and implemented a loan management system to handle loan applications, approvals, and payment tracking
+# loan-system
+CMPE-133 SEC01 Team 14: Andrew Phan, Canhui Huang, Jeffrey Castro, Gabriel Martins
